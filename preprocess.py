@@ -23,11 +23,11 @@ for file_name in os.listdir(root_dir):
     subprocess.call(['mv', f'{root_dir}/{file_name}', f'{root_dir}/{class_name}/{file_name.split("_")[-1].split(".")[0]}.mp4'])
 
 # Train, test and val dataset preparation
+current_dir = os.getcwd()
 class_path = []
 for dir_path, _, files in os.walk(root_dir):
     for file in files:
-
-        paths = os.path.join(dir_path, file)
+        paths = os.path.join(current_dir, dir_path, file)
         class_name = dir_path.split('/')[-1]
         class_path.append([paths, class_name])
 
