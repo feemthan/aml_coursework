@@ -5,6 +5,7 @@ import pdb
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
+import json
 
 # call ffmpeg to generate videos via subprocess
 root_dir = 'HMDB_simp'
@@ -42,6 +43,14 @@ class_name = dataset.iloc[:, 0].str.split(' ', expand=True)[1]
 
 label_encoder = LabelEncoder()
 class_name = label_encoder.fit_transform(class_name)
+
+# map the labels to numbers
+label_to_num_map = dict(zip(label_encoder.classes_, label_encoder.transform(label_encoder.classes_)))
+label_to_num_map = {k: int(v) for k, v in label_to_num_map.items()}
+
+# build json file to remap in the future
+with open('label_mapping.json', 'w') as file:
+    json.dump(label_to_num_map, file)
 
 # split multiple times for 70 15 15, put your student ID here
 STUDENT_ID = 2538
