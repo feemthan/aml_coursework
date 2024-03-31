@@ -8,26 +8,22 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 import json
+from tqdm import tqdm
 
 directory = 'HMDB_simp'
 new_size = (224, 224)
 
-for classes in os.listdir(directory):
-    class_folder = os.path.join(directory, classes)
-    for folder_name in os.listdir(class_folder):
-        image_folder = os.path.join(class_folder, folder_name)
-        for image_path in os.listdir(image_folder):
+file_paths = []
+for root, dirs, files in os.walk(directory):
+    for file in files:
+        if file.endswith('.jpg'):
+            file_path = os.path.join(root, file)
+            file_paths.append(file_path)
 
-            if image_path.endswith('.jpg'):
-                # Open the image
-                image_path = os.path.join(image_folder, image_path)
-                image = Image.open(image_path)
-
-                # Resize the image
-                resized_image = image.resize(new_size)
-
-                # Save the resized image
-                resized_image.save(image_path)
+for image_path in tqdm(file_paths, desc="Resizing images", unit="image"):
+    image = Image.open(image_path)
+    resized_image = image.resize(new_size)
+    resized_image.save(image_path)
 
 root_dir = 'video_outputs'
 if not os.path.exists(root_dir):
