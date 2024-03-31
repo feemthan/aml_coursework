@@ -5,3 +5,5 @@ kinetics-dataset/
 TimeSformer/
 archive.zip
 video_outputs/
+class_path.csv
+label_mapping.json
