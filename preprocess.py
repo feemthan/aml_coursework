@@ -2,27 +2,49 @@
 import os
 import subprocess
 import pdb
+from PIL import Image
+
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 import json
 
+directory = 'HMDB_simp'
+new_size = (224, 224)
+
+for classes in os.listdir(directory):
+    class_folder = os.path.join(directory, classes)
+    for folder_name in os.listdir(class_folder):
+        image_folder = os.path.join(class_folder, folder_name)
+        for image_path in os.listdir(image_folder):
+
+            if image_path.endswith('.jpg'):
+                # Open the image
+                image_path = os.path.join(image_folder, image_path)
+                image = Image.open(image_path)
+
+                # Resize the image
+                resized_image = image.resize(new_size)
+
+                # Save the resized image
+                resized_image.save(image_path)
+
+root_dir = 'video_outputs'
+if not os.path.exists(root_dir):
+    os.makedirs(root_dir)
+else:
+    pass
+
 # call ffmpeg to generate videos via subprocess
 root_dir = 'HMDB_simp'
 for classes in os.listdir(root_dir):
     for folders in os.listdir(os.path.join(root_dir, classes)):
-
-        subprocess.call(['ffmpeg', '-y', '-r', '30', '-pattern_type', 'sequence','-i', f'HMDB_simp/{classes}/{folders}/%04d.jpg', f'video_outputs/{classes}_{folders}.mp4'])
-
-# Move to class specific location and rename
-root_dir = 'video_outputs'
-for file_name in os.listdir(root_dir):
-
-    class_name = file_name.split('_')[0]
-    if not os.path.exists(f'{root_dir}/{class_name}'):
-        os.makedirs(f'{root_dir}/{class_name}')
-
-    subprocess.call(['mv', f'{root_dir}/{file_name}', f'{root_dir}/{class_name}/{file_name.split("_")[-1].split(".")[0]}.mp4'])
+        output_dir = 'video_outputs/' + classes
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        else:
+            pass
+        subprocess.call(['ffmpeg', '-y', '-r', '30', '-pattern_type', 'sequence','-i', 'HMDB_simp/'+classes+'/'+folders+'/%04d.jpg', output_dir +'/'+folders+'.mp4'])
 
 # Train, test and val dataset preparation
 current_dir = os.getcwd()
