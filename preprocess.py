@@ -10,11 +10,12 @@ from sklearn.preprocessing import LabelEncoder
 import json
 from tqdm import tqdm
 
-directory = 'HMDB_simp'
+root_directory = 'HMDB_simp'
+train_directory = 'video_outputs'
 new_size = (224, 224)
 
 file_paths = []
-for root, dirs, files in os.walk(directory):
+for root, dirs, files in os.walk(root_directory):
     for file in files:
         if file.endswith('.jpg'):
             file_path = os.path.join(root, file)
@@ -25,27 +26,34 @@ for image_path in tqdm(file_paths, desc="Resizing images", unit="image"):
     resized_image = image.resize(new_size)
     resized_image.save(image_path)
 
-root_dir = 'video_outputs'
-if not os.path.exists(root_dir):
-    os.makedirs(root_dir)
+if not os.path.exists(train_directory):
+    os.makedirs(train_directory)
 else:
     pass
 
 # call ffmpeg to generate videos via subprocess
-root_dir = 'HMDB_simp'
-for classes in os.listdir(root_dir):
-    for folders in os.listdir(os.path.join(root_dir, classes)):
-        output_dir = 'video_outputs/' + classes
+root_dir = root_directory
+for classes in os.listdir(root_directory):
+    for folders in os.listdir(os.path.join(root_directory, classes)):
+        output_dir = train_directory + '/' + classes
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
         else:
             pass
         subprocess.call(['ffmpeg', '-y', '-r', '30', '-pattern_type', 'sequence','-i', 'HMDB_simp/'+classes+'/'+folders+'/%04d.jpg', output_dir +'/'+folders+'.mp4'])
 
+test_dir = 'test_data/'
+if not os.path.exists(test_dir):
+    os.makedirs(test_dir)
+else:
+    pass
+
+subprocess.run(['cp', '-r', train_directory, test_dir], check=True)
+
 # Train, test and val dataset preparation
 current_dir = os.getcwd()
 class_path = []
-for dir_path, _, files in os.walk(root_dir):
+for dir_path, _, files in os.walk(train_directory):
     for file in files:
         if not file.endswith('.csv'):
             paths = os.path.join(current_dir, dir_path, file)
@@ -84,3 +92,5 @@ test_df = pd.DataFrame({'filepath': X_test, 'class': y_test})
 train_df.to_csv('video_outputs/train.csv', index=False, header=False, sep=' ')
 val_df.to_csv('video_outputs/val.csv', index=False, header=False, sep=' ')
 test_df.to_csv('video_outputs/test.csv', index=False, header=False, sep=' ')
+
+val_df.to_csv('test_data/test.csv', index=False, header=False, sep=' ')

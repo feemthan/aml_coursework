@@ -2,6 +2,6 @@
 HMDB_simp/
 Human Action Recognition/
 kinetics-dataset/
-TimeSformer/
+# TimeSformer/
 archive.zip
 video_outputs/
